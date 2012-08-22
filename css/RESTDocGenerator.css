@@ -1,0 +1,138 @@
+html {
+	background: #eee;
+}
+
+html { 
+	background: #F8F9FA; font: 14px/18px Arial, sans-serif; color: #333; 
+}
+
+p, pre { margin:  0 0 0.5em; }
+
+table, ul { margin: 0 0 1em; }
+
+ul { padding: 0 0 0 20px; }
+	ul.semantic { padding: 0; }
+
+h1, h2, h3, h4, h5, h6 { margin: 0 0 5px; }
+
+h1, h2 { color: #444; font-size: 24px }
+h1 { background: #888; color: white; padding: 8px 3px; }
+h2 { font-size: 20px; }
+h3 { font-size: 16px; background:  #bbb; }
+h4 { font-size: 14px; background:  #ddd; }
+
+table { border-collapse: collapse; width: 100%; }
+thead { background: red; color: white; }
+th, td { font-size: 10pt; border: 1px solid black; margin: 0; padding: 3px; }
+
+th { white-space: nowrap; padding: 0 4px; }
+
+dt { font-weight: bold; margin: 0 1em; }
+dd { margin: 0 1em 2em; }
+
+#container {
+	margin: 18px auto; padding: 17px 1.25%; 
+	background: #fff; 
+	overflow: hidden; 
+	border: 1px solid #dfdfdf;
+	-webkit-box-shadow: 0 0 20px #e8ebed; 
+	-moz-box-shadow: 0 0 20px #e8ebed; 
+	box-shadow: 0 0 20px #e8ebed;
+	
+	-webkit-border-radius: 2px; 
+	-moz-border-radius: 2px; 
+	border-radius: 2px;
+	position: relative;
+
+	width: 960px;
+	margin: auto;
+
+    position: relative;
+}
+
+#content {
+    margin-left: 220px; padding-left: 10px;
+	border-left: 1px solid #efefef;
+}
+
+#sidebar {
+    position: fixed;
+	width: 200px;
+    left: 50%;
+    margin-left: -480px;
+    top: 18px; bottom: 18px; overflow: auto;
+
+	background: #f4f4f4;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	padding: 5px;
+
+    font-size: 12px;
+}
+        #sidebar .ui-tabs-panel { padding: 0; }
+
+		#sidebar ul { margin: 0; padding: 0;}
+        #sidebar h3 { padding: 5px; }
+		#sidebar h4 { font-size: 14px; margin-bottom: 9px;}
+		#sidebar li { 
+			list-style: none; 
+			padding: 0; margin: 0;
+		}
+
+			#sidebar a { 
+				display: block; width: 86%; 
+				padding: 5px 10px 4px;
+				border-bottom: 1px solid #dfdfdf;
+			}
+				#sidebar a:hover,
+				#sidebar a:focus {
+					text-decoration: none;
+				}
+				
+				#sidebar li ul {
+					margin-left: 10px	;
+				}
+
+            #sidebar .ui-accordion-header a {
+                padding-left: 20px;
+            }
+
+
+.semantic {}
+	.semantic > li {
+        list-style:  none;
+        padding-top: 5px;
+    }
+
+    .semantic > li + li {
+        padding-top: 1em;
+		border-top: 2px solid #eee;
+	}
+
+	.semantic .semantic {
+		margin: 10px; 
+	}
+
+.example-link {
+    font-style: italic;
+    cursor: pointer;
+}
+
+.example-link:after {
+    content: " ➤";
+}
+
+.popup-example {
+    position: fixed;
+    top: 25px; bottom: 25px; width: 800px; left: 50%; margin-left: -400px;
+
+    z-index: 100;
+    padding: 10px;
+    overflow: auto;
+
+    background: white;
+    -moz-box-shadow: 0 0 15px black;
+    -webkit-box-shadow: 0 0 15px black;
+
+}
