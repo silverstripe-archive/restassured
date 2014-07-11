@@ -45,7 +45,7 @@ abstract class RESTFormatter {
 				break; // Mimetypes take priority over extensions. If we get a match we're done.
 			}
 
-			if($extension && in_array($extension, Object::get_static($class, 'extensions'))) {
+			if($extension && in_array($extension, Object::get_static($class, 'url_extensions'))) {
 				$byExtension = $class;
 				if (!$mimetypes) break; // We're only done on a match if we don't have a mimetype to look for.
 			}
@@ -210,7 +210,7 @@ abstract class RESTFormatter {
 
 class RESTFormatter_JSON extends RESTFormatter {
 	static $mimetypes = array('application/json');
-	static $extensions = array('js', 'json');
+	static $url_extensions = array('js', 'json');
 
 	static $type_attribute = '$type';
 
@@ -246,7 +246,7 @@ class RESTFormatter_JSON extends RESTFormatter {
 
 class RESTFormatter_XML extends RESTFormatter {
 	static $mimetypes = array('text/xml');
-	static $extensions = array('xml');
+	static $url_extensions = array('xml');
 
 	static $scalar_style = 'elem'; // 'elem' or 'attr'
 
