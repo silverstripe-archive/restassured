@@ -23,74 +23,87 @@ require(BASE_PATH.'/restassured/thirdparty/markdown.php');
  * 
  * @package restassured
  */
-class RESTDocblockParser implements arrayaccess {
-	static function parse($source) {
-		$string = $source;
+class RESTDocblockParser implements arrayaccess
+{
+    public static function parse($source)
+    {
+        $string = $source;
 
-		if ($source instanceof Reflector) $string = preg_replace('{^[ \t]*(/\*+|\*+/?)}m', '', $source->getDocComment());
+        if ($source instanceof Reflector) {
+            $string = preg_replace('{^[ \t]*(/\*+|\*+/?)}m', '', $source->getDocComment());
+        }
 
-		$lines = preg_split('/^/m', $string);
-		return new RESTDocblockParser($lines, -1);
-	}
+        $lines = preg_split('/^/m', $string);
+        return new RESTDocblockParser($lines, -1);
+    }
 
-	function __construct(&$lines, $level) {
-		$res = array();
-		$body = array();
+    public function __construct(&$lines, $level)
+    {
+        $res = array();
+        $body = array();
 
-		while (count($lines)) {
-			$line = array_shift($lines);
+        while (count($lines)) {
+            $line = array_shift($lines);
 
-			// Blank lines just get a carriage return added (for markdown) and otherwise ignored
-			if (!trim($line)) {
-				$body[] = "\n";
-				continue;
-			}
+            // Blank lines just get a carriage return added (for markdown) and otherwise ignored
+            if (!trim($line)) {
+                $body[] = "\n";
+                continue;
+            }
 
-			// Get the indent
-			preg_match('/^(\s*)/', $line, $match);
-			$indent = $match[1];
+            // Get the indent
+            preg_match('/^(\s*)/', $line, $match);
+            $indent = $match[1];
 
-			// Check to make sure we're still indented
-			if (strlen($indent) <= $level) {
-				array_unshift($lines, $line);
-				break;
-			}
+            // Check to make sure we're still indented
+            if (strlen($indent) <= $level) {
+                array_unshift($lines, $line);
+                break;
+            }
 
-			// Check for tag
-			if (preg_match('/^@([^\s]+)(.*)$/', trim($line), $match)) {
-				$tag = $match[1];
+            // Check for tag
+            if (preg_match('/^@([^\s]+)(.*)$/', trim($line), $match)) {
+                $tag = $match[1];
 
-				$sub = new RESTDocblockParser($lines, strlen($indent));
-				$sub['details'] = trim($match[2]);
+                $sub = new RESTDocblockParser($lines, strlen($indent));
+                $sub['details'] = trim($match[2]);
 
-				if (!isset($res[$tag])) $res[$tag] = new RESTDocblockParser_Sequence();
-				$res[$tag][] = $sub;
-			}
-			else {
-				$body[] = substr($line, $level > 0 ? $level : 0);
-			}
-		}
+                if (!isset($res[$tag])) {
+                    $res[$tag] = new RESTDocblockParser_Sequence();
+                }
+                $res[$tag][] = $sub;
+            } else {
+                $body[] = substr($line, $level > 0 ? $level : 0);
+            }
+        }
 
-		$res['body'] = Markdown(implode("", $body));
+        $res['body'] = Markdown(implode("", $body));
 
-		$this->res = $res;
-	}
+        $this->res = $res;
+    }
 
-	public function offsetExists ($offset) {
-		return isset($this->res[$offset]);
-	}
+    public function offsetExists($offset)
+    {
+        return isset($this->res[$offset]);
+    }
 
-	public function offsetGet ($offset) {
-		if (isset($this->res[$offset])) return $this->res[$offset];
-		// No match, return the null
-		return singleton('RESTDocblockParser_Null');
-	}
+    public function offsetGet($offset)
+    {
+        if (isset($this->res[$offset])) {
+            return $this->res[$offset];
+        }
+        // No match, return the null
+        return singleton('RESTDocblockParser_Null');
+    }
 
-	public function offsetSet ($offset, $value) {
-		$this->res[$offset] = $value;
-	}
+    public function offsetSet($offset, $value)
+    {
+        $this->res[$offset] = $value;
+    }
 
-	public function offsetUnset ($offset) { /* NOP */ }
+    public function offsetUnset($offset)
+    { /* NOP */
+    }
 }
 
 /**
@@ -109,37 +122,49 @@ class RESTDocblockParser implements arrayaccess {
  *
  * @package restassured
  */
-class RESTDocblockParser_Sequence implements arrayaccess, IteratorAggregate {
+class RESTDocblockParser_Sequence implements arrayaccess, IteratorAggregate
+{
 
-	protected $seq = array();
+    protected $seq = array();
 
-	public function offsetExists ($offset) {
-		return isset($this->seq[$offset]);
-	}
+    public function offsetExists($offset)
+    {
+        return isset($this->seq[$offset]);
+    }
 
-	public function offsetGet ($offset) {
-		if (is_numeric($offset)) {
-			if (isset($this->seq[$offset])) return $this->seq[$offset];
-		}
-		else {
-			if (isset($this->seq[0])) return $this->seq[0][$offset];
-		}
-		// No match, return the null
-		return singleton('RESTDocblockParser_Null');
-	}
+    public function offsetGet($offset)
+    {
+        if (is_numeric($offset)) {
+            if (isset($this->seq[$offset])) {
+                return $this->seq[$offset];
+            }
+        } else {
+            if (isset($this->seq[0])) {
+                return $this->seq[0][$offset];
+            }
+        }
+        // No match, return the null
+        return singleton('RESTDocblockParser_Null');
+    }
 
-	public function offsetSet ($offset, $value) {
-		if ($offset === null) $this->seq[] = $value;
-		else $this->seq[$offset] = $value;
-	}
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->seq[] = $value;
+        } else {
+            $this->seq[$offset] = $value;
+        }
+    }
 
-	public function offsetUnset ($offset) {
-		unset($this->seq[$offset]);
-	}
+    public function offsetUnset($offset)
+    {
+        unset($this->seq[$offset]);
+    }
 
-	public function getIterator() {
+    public function getIterator()
+    {
         return new ArrayIterator($this->seq);
-   }
+    }
 }
 
 /**
@@ -148,16 +173,37 @@ class RESTDocblockParser_Sequence implements arrayaccess, IteratorAggregate {
  * 
  * @package restassured
  */
-class RESTDocblockParser_Null implements arrayaccess, IteratorAggregate {
-	function __construct() {}
+class RESTDocblockParser_Null implements arrayaccess, IteratorAggregate
+{
+    public function __construct()
+    {
+    }
 
-	public function offsetExists ($offset) { return false; }
-	public function offsetGet ($offset) { return $this; }
-	public function offsetSet ($offset, $value) { /* NOP */ }
-	public function offsetUnset ($offset) { /* NOP */ }
-	public function getIterator() { return new EmptyIterator(); }
+    public function offsetExists($offset)
+    {
+        return false;
+    }
+    public function offsetGet($offset)
+    {
+        return $this;
+    }
+    public function offsetSet($offset, $value)
+    { /* NOP */
+    }
+    public function offsetUnset($offset)
+    { /* NOP */
+    }
+    public function getIterator()
+    {
+        return new EmptyIterator();
+    }
 
-	function __toString() { return ''; }
-	function __toBool() { return false; }
+    public function __toString()
+    {
+        return '';
+    }
+    public function __toBool()
+    {
+        return false;
+    }
 }
-
