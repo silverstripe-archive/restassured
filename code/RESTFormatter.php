@@ -40,12 +40,12 @@ abstract class RESTFormatter {
 		foreach (ClassInfo::subclassesFor(__CLASS__) as $class) {
 			if ($class == __CLASS__) continue;
 
-			if($mimetypes && count(array_intersect($mimetypes, Object::get_static($class, 'mimetypes')))) {
+			if($mimetypes && count(array_intersect($mimetypes, Config::inst()->get($class, 'mimetypes')))) {
 				$byMimeType = $class;
 				break; // Mimetypes take priority over extensions. If we get a match we're done.
 			}
 
-			if($extension && in_array($extension, Object::get_static($class, 'url_extensions'))) {
+			if($extension && in_array($extension, Config::inst()->get($class, 'url_extensions'))) {
 				$byExtension = $class;
 				if (!$mimetypes) break; // We're only done on a match if we don't have a mimetype to look for.
 			}
