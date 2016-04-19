@@ -213,7 +213,7 @@ class RESTDocGenerator_HandlerInspector extends ViewableData {
 	}
 
 	protected function getActionMethodReflections() {
-		$allow = Object::get_static($this->handler, 'allowed_actions');
+		$allow = \Config::inst()->get($this->handler, 'allowed_actions');
 		$res = new RESTDocGenerator_MethodFilter($this->reflection);
 
 		return $res->isSubclassOf('RESTNoun_Handler')->isCallablePublicMethod()->nameInArray($allow)->asArray();
@@ -274,7 +274,7 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 	}
 	
 	function getName() {
-		$stat = Object::get_static($this->noun, 'name');
+		$stat = \Config::inst()->get($this->noun, 'name');
 		return $stat ? $stat : $this->noun;
 	}
 
@@ -297,10 +297,10 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 		$res = array();
 
 		foreach (ClassInfo::ancestry($this->noun) as $class) {
-			$local = Object::uninherited_static($class, $stat);
 			if (!RESTDocGenerator_TraitChecker::have_trait($class, 'RESTNoun')) {
 				continue;
 			}
+			$local = \Config::inst()->get($class, $stat, Config::UNINHERITED);
 
 			if ($local) {
 				if (is_array($res) && is_array($local)) $res = array_merge($res, $local);
