@@ -1,5 +1,27 @@
 <?php
 
+class RESTDocGenerator_TraitChecker {
+
+	public static function have_trait($className, $trait) {
+		if(!class_exists($className)) {
+			return false;
+		}
+		$traits = [];
+		do {
+			$traits = array_merge(class_uses($className, true), $traits);
+		} while ($className = get_parent_class($className));
+
+		// traits can use traits as well
+		$traitsToSearch = $traits;
+		while (!empty($traits)) {
+			$newTraits = class_uses(array_pop($traits), true);
+			$traits = array_merge($newTraits, $traits);
+			$traitsToSearch = array_merge($newTraits, $traitsToSearch);
+		}
+		return in_array($trait, $traitsToSearch);
+	}
+}
+
 /**
  * @package restassured
  */
@@ -48,6 +70,11 @@ class RESTDocGenerator_MethodFilter {
 
 	function _isSubclassOf($reflection, $filteringClass) {
 		return $reflection->getDeclaringClass()->isSubclassOf($filteringClass);
+	}
+
+	function _hasTrait($reflection, $trait) {
+		$className = $reflection->getDeclaringClass()->getName();
+		return RESTDocGenerator_TraitChecker::have_trait($className, $trait);
 	}
 
 	function _isPublic($reflection) {
@@ -234,7 +261,7 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 
 	protected function getPropertyMethodReflections() {
 		$res = new RESTDocGenerator_MethodFilter($this->reflection);
-		return $res->isSubclassOf('RESTNoun')->isCallablePublicMethod()->startsWith('get')->hasNumberOfParameters(0)->asArray();
+		return $res->hasTrait('RESTNoun')->isCallablePublicMethod()->startsWith('get')->hasNumberOfParameters(0)->asArray();
 	}
 
 	function getID() {
@@ -256,7 +283,10 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 	}
 
 	function getType() {
-		return is_subclass_of($this->noun, 'RESTItem') ? 'Item' : 'Collection';
+		if(RESTDocGenerator_TraitChecker::have_trait($this->noun, 'RESTItem')) {
+			return 'Item';
+		}
+		return 'Collection';
 	}
 
 	function getDescription() {
@@ -267,9 +297,10 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 		$res = array();
 
 		foreach (ClassInfo::ancestry($this->noun) as $class) {
-			if (!is_subclass_of($class, 'RESTNoun')) continue;
-
 			$local = Object::uninherited_static($class, $stat);
+			if (!RESTDocGenerator_TraitChecker::have_trait($class, 'RESTNoun')) {
+				continue;
+			}
 
 			if ($local) {
 				if (is_array($res) && is_array($local)) $res = array_merge($res, $local);
@@ -305,7 +336,7 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 
 		foreach ($fields as $name => $details) {
 			$type = preg_replace('/\[([^\]]+)\]/', '$1', $details->Type);
-			if (ClassInfo::is_subclass_of($type, 'RESTNoun')) {
+			if (RESTDocGenerator_TraitChecker::have_trait($type, 'RESTNoun')) {
 				$fields[$name]->Link = $type;
 			}
 		}
@@ -335,9 +366,11 @@ class RESTDocGenerator_NestingInspector extends ViewableData {
 				if ($name == 'Items') $name = "{id}";
 				$type = preg_replace('/^\[([^\]]+)\]$/', '$1', $type);
 
+				if ($type && RESTDocGenerator_TraitChecker::have_trait($type, 'RESTNoun')) {
+					// convert to global namespace
+					$refClass = new ReflectionClass($type);
+					$classes[$name] = $refClass->getName();
 
-				if ($type && ClassInfo::is_subclass_of($type, 'RESTNoun')) {
-					$classes[$name] = $type;
 				}
 			}
 		}
@@ -380,8 +413,11 @@ class RESTDocGenerator_TypeInspector extends ViewableData {
 	function recursivelyCollectTypes($base) {
 		foreach ($base->getSubClasses(true) as $inspector) {
 			foreach ($inspector->getReturnedTypes() as $returned) {
-				$noun = $returned->noun;
+				// convert to normalised namespace
+				$refClass= new ReflectionClass($returned->noun);
+				$noun = $refClass->getName();
 
+				$noun = $returned->noun;
 				if (!isset($this->typeList[$noun])) {
 					$this->typeList[$noun] = $returned;
 					$this->recursivelyCollectTypes($returned);
@@ -390,7 +426,9 @@ class RESTDocGenerator_TypeInspector extends ViewableData {
 
 			foreach ($inspector->getHandler()->getActions() as $action) {
 				foreach ($action->getReturnedTypes() as $returned) {
-					$noun = $returned->noun;
+					// convert to normalised namespace
+					$refClass= new ReflectionClass($returned->noun);
+					$noun = $refClass->getName();
 
 					if (!isset($this->typeList[$noun])) {
 						$this->typeList[$noun] = $returned;
