@@ -165,39 +165,37 @@ Field=Value&Field2=Value2
 
 				<h1>Actions</h1>
 
-				<% control Actions %>
+				<% with Actions %>
 				
-					<% if ReturnedTypes %>
+					<% if $ReturnedTypes %>
 						<ul class="semantic">
-							<% control ReturnedTypes %>
+							<% loop $ReturnedTypes %>
 								<li><% include RESTDocGenerator_Action %></li>
-
-								<% control ReturnedTypes %>
+								<% loop $ReturnedTypes %>
 									<li><% include RESTDocGenerator_Action %></li>
-
-										<% control ReturnedTypes %>
+										<% loop $ReturnedTypes %>
 											<li><% include RESTDocGenerator_Action %></li>
-												<% control ReturnedTypes %>
+												<% loop $ReturnedTypes %>
 													<li><% include RESTDocGenerator_Action %></li>
 
-												<% end_control %>
-										<% end_control %>
-								<% end_control %>
-							<% end_control %>
+												<% end_loop %>
+										<% end_loop %>
+								<% end_loop %>
+							<% end_loop %>
 						</ul>
 					<% else %>
 						<div class="message info">
 							<p>No classes found</p>
 						</div>
 					<% end_if %>
-				<% end_control %>
+				<% end_with %>
 
 				<h1>Types</h1>
 
 				<ul class="semantic">
-					<% control Types.Types %>
+					<% loop Types.Types %>
 						<li><% include RESTDocGenerator_Type %></li>
-					<% end_control %>
+					<% end_loop %>
 				</ul>
 			</div>
 
@@ -210,31 +208,46 @@ Field=Value&Field2=Value2
 					</ul>
 
 					<div id='actions-menu'>
-					<% control Actions %>
-						<% if ReturnedTypes %>
+					<% loop $Actions %>
+						<% if $ReturnedTypes %>
 							<ul>
-								<% control ReturnedTypes %>
-									<li><a href="#action-$ID">/$Name</a> <% if ReturnedTypes %><ul><% control ReturnedTypes %>
-										<li><a href="#action-$ID">/$Name</a> <% if ReturnedTypes %><ul><% control ReturnedTypes %>
-											<li><a href="#action-$ID">/$Name</a> <% if ReturnedTypes %><ul><% control ReturnedTypes %>
-												<li><a href="#action-$ID">/$Name</a></li>
-												<% end_control %></ul><% end_if %>
-											</li>
-											<% end_control %></ul><% end_if %>
-										</li>
-										<% end_control %></ul><% end_if %>
-									</li>
-								<% end_control %>
+								<% loop $ReturnedTypes %>
+								<li><a href="#action-$ID">/$Name</a>
+										<% if $ReturnedTypes %>
+											<ul>
+											<% loop $ReturnedTypes %>
+												<li><a href="#action-$ID">/$Name</a>
+													<% if $ReturnedTypes %>
+														<ul>
+														<% loop $ReturnedTypes %>
+															<li><a href="#action-$ID">/$Name</a>
+																<% if $ReturnedTypes %>
+																	<ul>
+																	<% loop $ReturnedTypes %>
+																		<li><a href="#action-$ID">/$Name</a></li>
+																	<% end_loop %>
+																	</ul>
+																<% end_if %>
+															</li>
+														<% end_loop %>
+														</ul>
+													<% end_if %>
+												</li>
+												<% end_loop %>
+											</ul>
+										<% end_if %>
+								</li>
+								<% end_loop %>
 							</ul>
 						<% end_if %>
-					<% end_control %>
+					<% end_loop %>
 					</div>
 
 					<div id='types-menu'>
 					<ul>
-						<% control Types.Types %>
+						<% loop $Types.Types %>
 							<li><a href="#type-$Class">$Class</a></li>
-						<% end_control %>
+						<% end_loop %>
 					</ul>
 					</div>
 				</div>
