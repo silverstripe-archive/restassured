@@ -193,8 +193,8 @@ class RESTNoun_Handler extends RequestHandler {
 		throw $e;
 	}
 
-	public function GET($request)    { $this->httpError(403); }
-	public function POST($request)   { $this->httpError(403); }
-	public function PUT($request)    { $this->httpError(403); }
-	public function DELETE($request) { $this->httpError(403); }
+	public function GET(SS_HTTPRequest $request) { $this->httpError(403); }
+	public function POST(SS_HTTPRequest $request) { $this->httpError(403); }
+	public function PUT(SS_HTTPRequest $request) { $this->httpError(403); }
+	public function DELETE(SS_HTTPRequest $request) { $this->httpError(403); }
 }

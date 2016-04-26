@@ -49,7 +49,7 @@ abstract class RESTParser extends Object {
 		foreach (ClassInfo::subclassesFor(__CLASS__) as $class) {
 			if ($class == __CLASS__) continue;
 
-			if($mimetypes && count(array_intersect($mimetypes, Object::get_static($class, 'mimetypes')))) {
+			if($mimetypes && count(array_intersect($mimetypes, \Config::inst()->get($class, 'mimetypes')))) {
 				$byMimeType = $class;
 				break; // Mimetypes take priority over extensions. If we get a match we're done.
 			}
